@@ -35,7 +35,13 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10,
             attemp_con = 0
             begin = dt.datetime.now()
             while True:
-                sleep_time = get_sleep_time(start_sleep_time, border_sleep_time, factor, attemp_con, jitter)
+                sleep_time = get_sleep_time(
+                    start_sleep_time,
+                    border_sleep_time,
+                    factor,
+                    attemp_con,
+                    jitter,
+                )
                 try:
                     attemp_con += 1
                     sleep(sleep_time)
