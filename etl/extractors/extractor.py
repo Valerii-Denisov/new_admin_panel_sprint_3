@@ -1,4 +1,6 @@
 import datetime
+from pathlib import Path
+
 import psycopg
 from psycopg import ClientCursor, connection as pg_connection
 from psycopg.rows import dict_row
@@ -15,35 +17,34 @@ class PostgresExtractor:
     """
     Класс для извлечения данных из PostgresQL
     """
-    connection_params: DSNSettings
-    connection: pg_connection
-    state: State
-    check_date: datetime.datatime
-    limit: int
+    # connection_params: DSNSettings
+    # connection: pg_connection
+    # state: State
+    # check_date: datetime.datetime
+    # limit: int
 
     def __init__(self, params: PostgresSettings, state: State):
-        self.connection_params = params.dsn
-        self.connection = self.get_connection()
+        self.connection_params = params
         self.state = state
         self.check_date = self.state.get_state('last_update') or datetime.datetime.min
-        self.limit = params.limit
+        self.limit = 100
 
-    @backoff()
+    @backoff(start_sleep_time=1)
     def get_connection(self) -> pg_connection:
-        with psycopg.connect(
-                **self.connection_params.dict(),
-                row_factory=dict_row(),
-                cursor_factory=ClientCursor) as pg_conn:
-            return pg_conn
+            return psycopg.connect(
+                **self.connection_params,
+                row_factory=dict_row,
+                cursor_factory=ClientCursor,
+        )
 
     def executor(self, sql_query: str, params: tuple) -> Iterator[Tuple]:
         """Выполняет sql запрос"""
-        while True:
+        with self.get_connection() as connection:
+            cursor = connection.cursor()
             try:
-                if self.connection.closed:
-                    self.connection = self.get_connection()
-                cursor = self.connection.cursor()
-                cursor.execute(sql_query, params)
+                sql = cursor.mogrify(sql_query, params)
+                print(sql)
+                cursor.execute(sql)
                 while True:
                     chunk_data = cursor.fetchmany(self.limit)
                     if not chunk_data:
@@ -51,22 +52,40 @@ class PostgresExtractor:
                     for row in chunk_data:
                         yield row
             except psycopg.OperationalError as pg_error:
-                pass
-        #logger.error('Ошибка соединения при выполнении SQL запроса %s', pg_error)
+                print(f'ex:{pg_error}')
 
-    @backoff(is_connection=False)
+
+    @backoff()
     def load_data(self) -> Union[Iterator[Tuple], List]:
         """
         Выгружает из postgres данные, обновленные после указанной даты:
         - находит новые записи и определяет id изменившихся фильмов
         - выгружает информацию для этих фильмов
         """
-        now = datetime.datetime.utcnow()
         films_ids = self.executor(sql.movies_ids, (self.check_date,))
-        films_ids = tuple([record[0] for record in films_ids])
+        now = datetime.datetime.utcnow()
+        films_ids = tuple([(record['id']) for record in films_ids])
+        print('films', films_ids)
         if films_ids:
             films_data = self.executor(sql.movies_data, (films_ids,))
             self.state.set_state('last_update', str(now))
             self.check_date = now
             return films_data
         return []
+
+dsl = {
+        'dbname': 'movies_database',
+        'user': 'app',
+        'password': '123qwe',
+        'host': '0.0.0.0',
+        'port':  5432,
+        'options': '-c search_path=content',
+        # 'limit': 100
+    }
+
+state_file_path = Path(__file__).parent.joinpath('state.json')
+storage = JsonFileStorage(state_file_path)
+postgres = PostgresExtractor(dsl, State(storage))
+data = postgres.load_data()
+for x in data:
+    print(x)

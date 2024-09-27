@@ -5,8 +5,8 @@ movies_data = """
         fw.description,
         fw.rating AS imdb_rating,
         fw.type,
-        fw.created_at,
-        fw.updated_at,
+        fw.created,
+        fw.modified,
         pfw.role,
         p.id,
         p.full_name,
@@ -17,7 +17,7 @@ movies_data = """
     LEFT JOIN content.person AS p ON p.id = pfw.person_id
     LEFT JOIN content.genre_film_work AS gfw ON gfw.film_work_id = fw.id
     LEFT JOIN content.genre AS g ON g.id = gfw.genre_id
-    WHERE fw.id IN %s;
+    WHERE fw.id IN %t;
 """
 
 movies_ids = """
