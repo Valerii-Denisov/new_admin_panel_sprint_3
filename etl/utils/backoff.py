@@ -26,36 +26,41 @@ def get_sleep_time(
         sleep_time = border_sleep_time
     return min(border_sleep_time, sleep_time)
 
+def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10, jitter=True):
+    """
+    Функция для повторного выполнения функции через некоторое время, если возникла ошибка. Использует наивный экспоненциальный рост времени повтора (factor) до граничного времени ожидания (border_sleep_time)
 
-def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10,
-            logger=None, is_connection=True, jitter=True):
+    Формула:
+        t = start_sleep_time * (factor ^ n), если t < border_sleep_time
+        t = border_sleep_time, иначе
+    :param start_sleep_time: начальное время ожидания
+    :param factor: во сколько раз нужно увеличивать время ожидания на каждой итерации
+    :param border_sleep_time: максимальное время ожидания
+    :return: результат выполнения функции
+    """
+
     def func_wrapper(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            attemp_con = 0
-            begin = dt.datetime.now()
+            attempt_con = 1
             while True:
-                sleep_time = get_sleep_time(
-                    start_sleep_time,
-                    border_sleep_time,
-                    factor,
-                    attemp_con,
-                    jitter,
-                )
                 try:
-                    attemp_con += 1
+                    print(attempt_con)
+                    sleep_time = get_sleep_time(
+                        start_sleep_time,
+                        border_sleep_time,
+                        factor,
+                        attempt_con,
+                        jitter
+                    )
+                    result = func(*args, **kwargs)
+                except Exception as e:
+                    print(e)
+                    attempt_con +=1
                     sleep(sleep_time)
-                    connection = func(*args, **kwargs)
-                    finish_time = (dt.datetime.now() - begin).total_seconds()
-                    if logger and is_connection:
-                        logger.info('Attempts: %s. Time: %s seconds',
-                                    attemp_con, finish_time)
-                    return connection
-                except psycopg.OperationalError:
-                    if logger:
-                        logger.error('Unable to connect to postgres')
-                except elasticsearch.ConnectionError:
-                    if logger:
-                        logger.error('Unable to connect to elasticsearch')
+                else:
+                    return result
+
         return inner
+
     return func_wrapper
