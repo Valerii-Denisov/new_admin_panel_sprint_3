@@ -91,7 +91,7 @@ storage = JsonFileStorage(state_file_path)
 postgres = PostgresExtractor(dsl, State(storage))
 data = postgres.load_data()
 transformer = DataPrepare()
-# trans_data = transformer.transform_data(data)
-# print(trans_data)
-len_ = [print(data_) for data_ in data]
-print(len(len_))
+trans_data = transformer.transform_data(data)
+print(trans_data)
+# len_ = [print(data_) for data_ in data]
+# print(len(len_))
