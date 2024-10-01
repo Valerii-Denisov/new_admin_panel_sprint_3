@@ -189,6 +189,23 @@ files = [
 ]
 
 [[package]]
+name = "pyaml-env"
+version = "1.2.1"
+description = "Provides yaml file parsing with environment variable resolution"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "pyaml_env-1.2.1-py3-none-any.whl", hash = "sha256:2e7da2d4bba0629711ade1a41864e5e200c84ded896a3d27e9f560fae7311c36"},
+    {file = "pyaml_env-1.2.1.tar.gz", hash = "sha256:6d5dc98c8c82df743a132c196e79963050c9feb05b0a6f25f3ad77771d3d95b0"},
+]
+
+[package.dependencies]
+PyYAML = ">=5.0,<=7.0"
+
+[package.extras]
+test = ["pytest"]
+
+[[package]]
 name = "pycodestyle"
 version = "2.11.1"
 description = "Python style guide checker"
@@ -451,4 +468,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9ddf45cf6e7b8909c809a9db205af53e057bab1c5c37de1fe93fa16d87737d85"
+content-hash = "7abb17732d8178f58325f163deee960c1cd219387c817e656973ce3aa810856a"

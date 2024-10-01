@@ -27,13 +27,13 @@ class PostgresExtractor:
     def __init__(self, params: PostgresSettings, state: State):
         self.connection_params = params
         self.state = state
-        self.check_date = self.state.get_state('last_update') or datetime.datetime.min
-        self.limit = os.environ.get('DB_LIMIT')
+        self.check_date = self.state.get_state('last_update') or str(datetime.datetime.min)
+        self.limit = int(os.environ.get('DB_LIMIT'))
 
     @backoff(start_sleep_time=1)
     def get_connection(self) -> pg_connection:
             return psycopg.connect(
-                **self.connection_params,
+                **self.connection_params.dict().get('dsn'),
                 row_factory=dict_row,
                 cursor_factory=ClientCursor,
         )
@@ -43,9 +43,11 @@ class PostgresExtractor:
         with self.get_connection() as connection:
             cursor = connection.cursor()
             try:
-                sql = cursor.mogrify(sql_query, params)
-                print(sql)
-                cursor.execute(sql)
+                # sql = cursor.mogrify(sql_query, params)
+                cursor.execute(sql_query, params)
+                print(sql_query)
+                print(params)
+                print('/boom')
                 while True:
                     chunk_data = cursor.fetchmany(self.limit)
                     if not chunk_data:
@@ -66,7 +68,6 @@ class PostgresExtractor:
         films_ids = self.executor(sql.movies_ids, (self.check_date,))
         now = datetime.datetime.utcnow()
         films_ids = [(record['id']) for record in films_ids]
-        print('films', len(films_ids))
         if films_ids:
             films_data = self.executor(sql.movies_data, (films_ids,))
             self.state.set_state('last_update', str(now))
@@ -74,21 +75,21 @@ class PostgresExtractor:
             return films_data
         return []
 
-dsl = {
-        'dbname': 'movies_database',
-        'user': 'app',
-        'password': '123qwe',
-        'host': '0.0.0.0',
-        'port':  5432,
-        'options': '-c search_path=content',
-    }
+# dsl = {
+#         'dbname': 'movies_database',
+#         'user': 'app',
+#         'password': '123qwe',
+#         'host': '0.0.0.0',
+#         'port':  5432,
+#         'options': '-c search_path=content',
+#     }
 
-state_file_path = Path(__file__).parent.joinpath('state.json')
-storage = JsonFileStorage(state_file_path)
-postgres = PostgresExtractor(dsl, State(storage))
-data = postgres.load_data()
-transformer = DataPrepare()
-trans_data = transformer.transform_data(data)
-print(trans_data)
-# len_ = [print(data_) for data_ in data]
-# print(len(len_))
+# state_file_path = Path(__file__).parent.joinpath('state.json')
+# storage = JsonFileStorage(state_file_path)
+# postgres = PostgresExtractor(dsl, State(storage))
+# data = postgres.load_data()
+# transformer = DataPrepare()
+# trans_data = transformer.transform_data(data)
+# print(trans_data)
+# # len_ = [print(data_) for data_ in data]
+# # print(len(len_))

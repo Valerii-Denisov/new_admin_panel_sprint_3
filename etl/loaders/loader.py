@@ -62,12 +62,16 @@ class ElasticSaver:
             }
             for movie in data
         ]
+        print(actions)
+        print('badanom')
         while True:
             try:
                 records, errors = helpers.bulk(client=self.es_client,
                                                actions=actions,
                                                raise_on_error=False,
                                                stats_only=True)
+                print(records)
+                print(errors)
 
                 # if records:
                 #     logger.info('Фильмов обновлено в Elasticsearch: %s',

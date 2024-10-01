@@ -28,8 +28,6 @@ class DataPrepare:
                 movie.get('modified'),
 
             )
-            print('actor', movie.get('full_name'))
-            print('genre', movie.get('name'))
             person = Person(movie.get('person_id'), movie.get('full_name'))
             genre = Genre(movie.get('genre_id'), movie.get('name'))
             movie_string = self.inner_storage.get_or_append(candidate)
@@ -37,5 +35,4 @@ class DataPrepare:
             movie_string.add_genre(genre)
         # logger.info('Подготовлено фильмов к обновлению в еlasticsearch: %s',
         #             self.inner_storage.count())
-
         return self.inner_storage.get_all()
