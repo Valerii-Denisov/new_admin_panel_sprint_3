@@ -1,5 +1,4 @@
 import datetime
-import os
 from pathlib import Path
 from time import sleep
 
@@ -11,6 +10,8 @@ from etl.extractors.extractor import PostgresExtractor
 from etl.loaders.loader import ElasticSaver
 from etl.transformers.transformer import DataPrepare
 from etl.utils.etl_state import State, JsonFileStorage
+
+CONFIG_FILENAME = 'config.yaml'
 
 load_dotenv()
 
@@ -41,7 +42,8 @@ def start_etl_process() -> None:
 
 
 if __name__ == '__main__':
-    config_file = Path(__file__).parent.joinpath(os.environ.get('CONFIG_FILENAME'))
+    config_file = Path(__file__).parent.joinpath(CONFIG_FILENAME)
     config_dict = yaml.safe_load(config_file.open(encoding='utf-8'))
+    print(config_dict)
     config = Config.parse_obj(config_dict)
     start_etl_process()

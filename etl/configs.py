@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class DSNSettings(BaseModel):
     host: str
-    port: int
+    port: str
     dbname: str
     password: str
     user: str
@@ -12,12 +12,12 @@ class DSNSettings(BaseModel):
 
 class PostgresSettings(BaseModel):
     dsn: DSNSettings
-    limit: Optional[int]
+    # limit: Optional[int]
 
 
 class ESHost(BaseModel):
     host: str
-    port: int
+    port: str
 
 
 class ESSettings(BaseModel):
@@ -36,4 +36,4 @@ class ETLSettings(BaseModel):
 
 class Config(BaseModel):
     etl: ETLSettings
-    logger: Dict
+    # logger: Dict

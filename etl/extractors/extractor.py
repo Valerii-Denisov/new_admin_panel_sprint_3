@@ -1,4 +1,5 @@
 import datetime
+import os
 from pathlib import Path
 
 import psycopg
@@ -6,14 +7,11 @@ from psycopg import ClientCursor, connection as pg_connection
 from psycopg.rows import dict_row
 from typing import Iterator, List, Tuple, Union
 
-from pydantic.experimental.pipeline import transform
-
-import sql
+import etl.extractors.sql as sql
 
 from etl.utils.backoff import backoff
 from etl.utils.etl_state import State, JsonFileStorage
-from etl.configs import (Config, DSNSettings, ESHost, ESSettings,
-                         PostgresSettings)
+from etl.configs import DSNSettings, PostgresSettings
 from etl.transformers.transformer import DataPrepare
 
 class PostgresExtractor:
@@ -30,7 +28,7 @@ class PostgresExtractor:
         self.connection_params = params
         self.state = state
         self.check_date = self.state.get_state('last_update') or datetime.datetime.min
-        self.limit = 100
+        self.limit = os.environ.get('DB_LIMIT')
 
     @backoff(start_sleep_time=1)
     def get_connection(self) -> pg_connection:
@@ -83,7 +81,6 @@ dsl = {
         'host': '0.0.0.0',
         'port':  5432,
         'options': '-c search_path=content',
-        # 'limit': 100
     }
 
 state_file_path = Path(__file__).parent.joinpath('state.json')
