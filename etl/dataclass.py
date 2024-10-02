@@ -15,7 +15,7 @@ class Person:
 class Genre:
     """Класс для представления жанра"""
     id: uuid.UUID
-    name: str
+    # name: str
 
 
 @dataclass
@@ -64,7 +64,7 @@ class Filmwork:
         """Добавляет жанры"""
         if genre in self.genres:
             return
-        self.genres.append(genre)
+        self.genres.append(genre.id)
 
 
 @dataclass
