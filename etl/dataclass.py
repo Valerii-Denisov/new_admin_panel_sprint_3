@@ -34,7 +34,7 @@ class Filmwork:
     actors_names: Optional[List[str]] = field(default_factory=list)
     directors_names: Optional[List[str]] = field(default_factory=list)
     writers_names: Optional[List[str]] = field(default_factory=list)
-    genre: List[Optional[Genre]] = field(default_factory=list)
+    genres: List[Optional[Genre]] = field(default_factory=list)
 
     def add_person(self, role: str, person: Person) -> None:
         """Добавляет персоналии в фильм в соответствии с профессией"""
@@ -62,9 +62,9 @@ class Filmwork:
 
     def add_genre(self, genre: Genre) -> None:
         """Добавляет жанры"""
-        if genre in self.genre:
+        if genre in self.genres:
             return
-        self.genre.append(genre)
+        self.genres.append(genre)
 
 
 @dataclass
