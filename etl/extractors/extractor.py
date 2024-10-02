@@ -1,6 +1,6 @@
 import datetime
+import logging
 import os
-from pathlib import Path
 
 import psycopg
 from psycopg import ClientCursor, connection as pg_connection
@@ -10,9 +10,10 @@ from typing import Iterator, List, Tuple, Union
 import etl.extractors.sql as sql
 
 from etl.utils.backoff import backoff
-from etl.utils.etl_state import State, JsonFileStorage
+from etl.utils.etl_state import State
 from etl.configs import DSNSettings, PostgresSettings
-from etl.transformers.transformer import DataPrepare
+
+logger = logging.getLogger('app_logger')
 
 class PostgresExtractor:
     """
@@ -32,22 +33,21 @@ class PostgresExtractor:
 
     @backoff(start_sleep_time=1)
     def get_connection(self) -> pg_connection:
-            return psycopg.connect(
-                **self.connection_params.dict().get('dsn'),
-                row_factory=dict_row,
-                cursor_factory=ClientCursor,
+        logger.info('Подключение к Postgres...')
+        connections = psycopg.connect(
+            **self.connection_params.dict().get('dsn'),
+            row_factory=dict_row,
+            cursor_factory=ClientCursor,
         )
+        logger.info('Соединение с Postgres успешно установлено!')
+        return connections
 
     def executor(self, sql_query: str, params: tuple) -> Iterator[Tuple]:
         """Выполняет sql запрос"""
         with self.get_connection() as connection:
             cursor = connection.cursor()
             try:
-                # sql = cursor.mogrify(sql_query, params)
                 cursor.execute(sql_query, params)
-                print(sql_query)
-                print(params)
-                print('/boom')
                 while True:
                     chunk_data = cursor.fetchmany(self.limit)
                     if not chunk_data:
@@ -55,7 +55,7 @@ class PostgresExtractor:
                     for row in chunk_data:
                         yield row
             except psycopg.OperationalError as pg_error:
-                print(f'ex:{pg_error}')
+                logger.info(f'ex:{pg_error}')
 
 
     @backoff()
@@ -68,28 +68,11 @@ class PostgresExtractor:
         films_ids = self.executor(sql.movies_ids, (self.check_date,))
         now = datetime.datetime.utcnow()
         films_ids = [(record['id']) for record in films_ids]
+        logger.info(f'Выгружено {len(films_ids)} id фильмов.')
         if films_ids:
             films_data = self.executor(sql.movies_data, (films_ids,))
             self.state.set_state('last_update', str(now))
             self.check_date = now
             return films_data
+        logger.info(f'Обновленные позиции отсутствуют.')
         return []
-
-# dsl = {
-#         'dbname': 'movies_database',
-#         'user': 'app',
-#         'password': '123qwe',
-#         'host': '0.0.0.0',
-#         'port':  5432,
-#         'options': '-c search_path=content',
-#     }
-
-# state_file_path = Path(__file__).parent.joinpath('state.json')
-# storage = JsonFileStorage(state_file_path)
-# postgres = PostgresExtractor(dsl, State(storage))
-# data = postgres.load_data()
-# transformer = DataPrepare()
-# trans_data = transformer.transform_data(data)
-# print(trans_data)
-# # len_ = [print(data_) for data_ in data]
-# # print(len(len_))

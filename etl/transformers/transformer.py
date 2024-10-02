@@ -1,6 +1,9 @@
-from etl.dataclass import FilmworkStorage, Filmwork, Person, Genre
-from typing import Iterator, List, Tuple, Union
+import logging
 
+from etl.dataclass import FilmworkStorage, Filmwork, Person, Genre
+from typing import Iterator, List, Tuple
+
+logger = logging.getLogger('app_logger')
 
 class DataPrepare:
     """
@@ -33,6 +36,6 @@ class DataPrepare:
             movie_string = self.inner_storage.get_or_append(candidate)
             movie_string.add_person(movie.get('role'), person)
             movie_string.add_genre(genre)
-        # logger.info('Подготовлено фильмов к обновлению в еlasticsearch: %s',
-        #             self.inner_storage.count())
+        logger.info('Подготовлено фильмов к обновлению в еlasticsearch: %s',
+                    self.inner_storage.count())
         return self.inner_storage.get_all()

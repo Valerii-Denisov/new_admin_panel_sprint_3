@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 from typing import List
 
@@ -10,6 +11,7 @@ from etl.dataclass import Filmwork
 from etl.utils.backoff import backoff
 from dataclasses import asdict
 
+logger = logging.getLogger('app_logger')
 
 class ElasticSaver:
     """Класс для работы с elasticsearch"""
@@ -33,11 +35,11 @@ class ElasticSaver:
     @backoff()
     def get_es_client(self) -> Elasticsearch:
         """Создает клиент elasticsearch"""
-        # logger.info('Подключение к elasticsearch...')
+        logger.info('Подключение к elasticsearch...')
         host = f'{self.host.host}:{self.host.port}'
         _client = Elasticsearch(hosts=host)
         _client.cluster.health(wait_for_status="yellow")
-        # logger.info('Соединение с elasticsearch успешно установлено!')
+        logger.info('Соединение с elasticsearch успешно установлено!')
         return _client
 
     def _create_index(self) -> None:
@@ -45,7 +47,6 @@ class ElasticSaver:
         path = Path(__file__).parent.joinpath(self.index_config)
         with open(path, 'r', encoding='utf-8') as index_file:
             index_settings = json.load(index_file)
-
         settings = index_settings.get('settings')
         mappings = index_settings.get('mappings')
         self.es_client.indices.create(index=self.index_name,
@@ -62,27 +63,22 @@ class ElasticSaver:
             }
             for movie in data
         ]
-        print(actions)
-        print('badanom')
         while True:
             try:
                 records, errors = helpers.bulk(client=self.es_client,
                                                actions=actions,
-                                               raise_on_error=False,
+                                               raise_on_error=True,
                                                stats_only=True)
-                print(records)
-                print(errors)
-
-                # if records:
-                #     logger.info('Фильмов обновлено в Elasticsearch: %s',
-                #                 records)
-                # if errors:
-                #     logger.error(
-                #         'При обновлении Elasticsearch произошло ошибок: %s',
-                #         errors)
+                if records:
+                    logger.info('Фильмов обновлено в Elasticsearch: %s',
+                                records)
+                if errors:
+                    logger.error(
+                        'При обновлении Elasticsearch произошло ошибок: %s',
+                        errors)
                 return
             except elasticsearch.ConnectionError as error:
-                # logger.error(
-                #         'Отсутствует подключение к Elasticsearch %s',
-                #         error)
+                logger.error(
+                        'Отсутствует подключение к Elasticsearch %s',
+                        error)
                 self.es_client = self.get_es_client()

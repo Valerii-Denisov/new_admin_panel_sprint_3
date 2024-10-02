@@ -32,7 +32,7 @@ class Filmwork:
     directors: Optional[List[Person]] = None
     writers: Optional[List[Person]] = None
     actors_names: Optional[List[str]] = None
-    director: Optional[List[str]] = None
+    directors_names: Optional[List[str]] = None
     writers_names: Optional[List[str]] = None
     genre: List[Optional[Genre]] = field(default_factory=list)
 
@@ -46,12 +46,12 @@ class Filmwork:
                 self.actors.append(person)
                 self.actors_names.append(person.name)
         if role == 'director':
-            if not self.director:
-                self.director = []
+            if not self.directors_names:
+                self.directors_names = []
                 self.directors = []
             if person not in self.directors:
                 self.directors.append(person)
-                self.director.append(person.name)
+                self.directors_names.append(person.name)
         if role == 'writer':
             if not self.writers:
                 self.writers = []

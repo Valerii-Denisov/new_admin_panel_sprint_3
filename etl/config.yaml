@@ -1,21 +1,21 @@
 etl:
   postgres:
     dsn:
-      dbname: movies_database
-      user: app
-      password: 123qwe
-      host: '0.0.0.0'
-      port: 5432
+      dbname: !ENV ${DB_NAME}
+      user: !ENV ${DB_USER}
+      password: !ENV ${DB_PASSWORD}
+      host: !ENV ${DB_HOST}
+      port: !ENV ${DB_PORT}
       options: "-c search_path=content"
 
 
   es:
     default_host:
-      host: 'http://0.0.0.0'
-      port: 9200
-    index_name: movies
+      host: !ENV ${ES_HOST}
+      port: !ENV ${ES_PORT}
+    index_name: !ENV ${ES_INDEX_NAME}
     index_config: "index.json"
 
-  state_file_name: "state.yaml"
+  state_file_name: "state.json"
   fetch_delay: 0.1
   log_status_period: 180

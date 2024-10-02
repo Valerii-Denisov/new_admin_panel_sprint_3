@@ -1,4 +1,3 @@
-from typing import Optional, Dict
 from pydantic import BaseModel
 
 class DSNSettings(BaseModel):
@@ -12,7 +11,6 @@ class DSNSettings(BaseModel):
 
 class PostgresSettings(BaseModel):
     dsn: DSNSettings
-    # limit: Optional[int]
 
 
 class ESHost(BaseModel):
@@ -36,4 +34,3 @@ class ETLSettings(BaseModel):
 
 class Config(BaseModel):
     etl: ETLSettings
-    # logger: Dict
