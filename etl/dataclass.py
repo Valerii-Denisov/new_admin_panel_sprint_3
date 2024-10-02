@@ -28,12 +28,12 @@ class Filmwork:
     type: str
     created: dt.datetime
     modified: dt.datetime
-    actors: Optional[List[Person]] = None
-    directors: Optional[List[Person]] = None
-    writers: Optional[List[Person]] = None
-    actors_names: Optional[List[str]] = None
-    directors_names: Optional[List[str]] = None
-    writers_names: Optional[List[str]] = None
+    actors: Optional[List[Person]] = field(default_factory=list)
+    directors: Optional[List[Person]] = field(default_factory=list)
+    writers: Optional[List[Person]] = field(default_factory=list)
+    actors_names: Optional[List[str]] = field(default_factory=list)
+    directors_names: Optional[List[str]] = field(default_factory=list)
+    writers_names: Optional[List[str]] = field(default_factory=list)
     genre: List[Optional[Genre]] = field(default_factory=list)
 
     def add_person(self, role: str, person: Person) -> None:
