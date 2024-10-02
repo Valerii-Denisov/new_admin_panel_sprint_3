@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class DSNSettings(BaseModel):
     host: str
     port: int

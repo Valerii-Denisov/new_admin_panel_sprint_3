@@ -13,6 +13,7 @@ from dataclasses import asdict
 
 logger = logging.getLogger('app_logger')
 
+
 class ElasticSaver:
     """Класс для работы с elasticsearch"""
     index_name: str
@@ -75,10 +76,12 @@ class ElasticSaver:
                 if errors:
                     logger.error(
                         'При обновлении Elasticsearch произошло ошибок: %s',
-                        errors)
+                        errors,
+                    )
                 return
             except elasticsearch.ConnectionError as error:
                 logger.error(
-                        'Отсутствует подключение к Elasticsearch %s',
-                        error)
+                    'Отсутствует подключение к Elasticsearch %s',
+                    error,
+                )
                 self.es_client = self.get_es_client()

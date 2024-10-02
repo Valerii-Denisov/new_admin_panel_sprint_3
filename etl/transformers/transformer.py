@@ -5,6 +5,7 @@ from typing import Iterator, List, Tuple
 
 logger = logging.getLogger('app_logger')
 
+
 class DataPrepare:
     """
     Класс для преобразования данных из postgres в объекты класса Filmork и

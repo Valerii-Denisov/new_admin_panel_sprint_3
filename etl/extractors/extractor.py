@@ -15,6 +15,7 @@ from etl.configs import DSNSettings, PostgresSettings
 
 logger = logging.getLogger('app_logger')
 
+
 class PostgresExtractor:
     """
     Класс для извлечения данных из PostgresQL
@@ -28,7 +29,8 @@ class PostgresExtractor:
     def __init__(self, params: PostgresSettings, state: State):
         self.connection_params = params
         self.state = state
-        self.check_date = self.state.get_state('last_update') or str(datetime.datetime.min)
+        self.check_date = (self.state.get_state('last_update')
+                           or str(datetime.datetime.min))
         self.limit = int(os.environ.get('DB_LIMIT'))
 
     @backoff(start_sleep_time=1)
@@ -57,7 +59,6 @@ class PostgresExtractor:
             except psycopg.OperationalError as pg_error:
                 logger.info(f'ex:{pg_error}')
 
-
     @backoff()
     def load_data(self) -> Union[Iterator[Tuple], List]:
         """
@@ -74,5 +75,5 @@ class PostgresExtractor:
             self.state.set_state('last_update', str(now))
             self.check_date = now
             return films_data
-        logger.info(f'Обновленные позиции отсутствуют.')
+        logger.info('Обновленные позиции отсутствуют.')
         return []

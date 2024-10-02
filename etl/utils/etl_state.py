@@ -46,6 +46,7 @@ class JsonFileStorage(BaseStorage):
             self.save_state({})
             return {}
 
+
 class State:
     """Класс для работы с состояниями."""
 

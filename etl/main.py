@@ -20,12 +20,12 @@ logging.config.dictConfig(logger_config.LOGGING_CONFIG)
 logger = logging.getLogger('app_logger')
 
 
-
 def get_state_storage() -> State:
     """Настраиват контейнер для хранения состояний"""
     state_file_path = Path(__file__).parent.joinpath(config.etl.state_file_name)
     storage = JsonFileStorage(state_file_path)
     return State(storage)
+
 
 def start_etl_process() -> None:
     """Запускает etl-процесс"""
@@ -41,7 +41,9 @@ def start_etl_process() -> None:
         if data:
             transformed_data = transformer.transform_data(data)
             elastic.save_to_es(transformed_data)
-        if now > time_log_status + datetime.timedelta(seconds=config.etl.log_status_period):
+        if now > time_log_status + datetime.timedelta(
+                seconds=config.etl.log_status_period,
+        ):
             logger.info('Скрипт работает в штатном режиме...')
             time_log_status = now
         sleep(config.etl.fetch_delay)
