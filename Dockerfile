@@ -16,9 +16,9 @@ RUN  apt-get update \
 
 COPY . .
 
-ENTRYPOINT ["python", "./etl/main.py"]
+ENTRYPOINT ["python", "./postgres_to_es/main.py"]
 
 FROM postgres:16 AS database
 
-COPY ./etl/pg_dump/movies_database.ddl /docker-entrypoint-initdb.d/01-movies_database.sql
-COPY ./etl/pg_dump/inserts.sql /docker-entrypoint-initdb.d/02-inserts.sql
+COPY ./postgres_to_es/pg_dump/movies_database.ddl /docker-entrypoint-initdb.d/01-movies_database.sql
+COPY ./postgres_to_es/pg_dump/inserts.sql /docker-entrypoint-initdb.d/02-inserts.sql

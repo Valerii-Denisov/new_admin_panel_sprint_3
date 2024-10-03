@@ -22,7 +22,7 @@ services:
     volumes:
       - $HOME/postgresql/data:/var/lib/postgresql/data
     env_file:
-      - "./etl/.env"
+      - "./postgres_to_es/.env"
     networks:
       - elastic_etl
 
@@ -32,7 +32,7 @@ services:
       context: .
       target: service
     image: etl:latest
-    container_name: etl_script_test
+    container_name: etl_script
     restart: always
     networks:
       - elastic_etl
@@ -40,7 +40,7 @@ services:
       - db
       - es
     env_file:
-      - "./etl/.env"
+      - "./postgres_to_es/.env"
 
 
 networks:
