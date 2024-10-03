@@ -17,5 +17,5 @@ etl:
     index_config: "index.json"
 
   state_file_name: "state.json"
-  fetch_delay: 0.1
+  fetch_delay: 1.5
   log_status_period: 180

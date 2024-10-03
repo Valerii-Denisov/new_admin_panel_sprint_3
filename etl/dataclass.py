@@ -15,7 +15,6 @@ class Person:
 class Genre:
     """Класс для представления жанра"""
     id: uuid.UUID
-    # name: str
 
 
 @dataclass

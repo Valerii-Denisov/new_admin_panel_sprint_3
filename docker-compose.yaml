@@ -1,0 +1,62 @@
+version: '3'
+services:
+  db:
+    build:
+      context: ./etl
+      target: database
+    image: pgdb:16
+    container_name: db
+    restart: always
+    volumes:
+      - $HOME/postgresql/data:/var/lib/postgresql/data
+    env_file:
+      - "./etl/.env"
+    networks:
+      - elastic_etl
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+    container_name: es_etl
+    environment:
+      - node.name=es
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic_etl
+
+
+  etl:
+    container_name: etl_script
+    build:
+      context: ./etl
+      target: service
+    image: etl:latest
+    restart: always
+    networks:
+      - elastic_etl
+    depends_on:
+      - db
+      - es
+    env_file:
+      - "./etl/.env"
+
+
+networks:
+  elastic:
+    driver: bridge
+

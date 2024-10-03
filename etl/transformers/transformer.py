@@ -37,14 +37,12 @@ class DataPrepare:
             else:
                 person = list()
             if movie.get('genre_id') is not 'None':
-                # genre = Genre(movie.get('genre_id'), movie.get('name'))
                 genre = Genre(movie.get('genre_id'))
             else:
                 genre = list()
             movie_string = self.inner_storage.get_or_append(candidate)
             movie_string.add_person(movie.get('role'), person)
             movie_string.add_genre(genre)
-            print(movie_string)
         logger.info('Подготовлено фильмов к обновлению в еlasticsearch: %s',
                     self.inner_storage.count())
         return self.inner_storage.get_all()
