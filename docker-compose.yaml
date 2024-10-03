@@ -1,8 +1,20 @@
-version: '3'
+version: '3.8'
 services:
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    container_name: es_etl
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: false
+    ports:
+      - 9200:9200
+    networks:
+      - elastic_etl
+
+
   db:
     build:
-      context: ./etl
+      context: .
       target: database
     image: pgdb:16
     container_name: db
@@ -13,39 +25,14 @@ services:
       - "./etl/.env"
     networks:
       - elastic_etl
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
-
-  es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
-    container_name: es_etl
-    environment:
-      - node.name=es
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - elastic_data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-    networks:
-      - elastic_etl
 
 
   etl:
-    container_name: etl_script
     build:
-      context: ./etl
+      context: .
       target: service
     image: etl:latest
+    container_name: etl_script_test
     restart: always
     networks:
       - elastic_etl
@@ -57,6 +44,5 @@ services:
 
 
 networks:
-  elastic:
+  elastic_etl:
     driver: bridge
-
