@@ -1,9 +1,9 @@
 etl:
   postgres:
     dsn:
-      dbname: !ENV ${DB_NAME}
-      user: !ENV ${DB_USER}
-      password: !ENV ${DB_PASSWORD}
+      dbname: !ENV ${POSTGRES_DB}
+      user: !ENV ${POSTGRES_USER}
+      password: !ENV ${POSTGRES_PASSWORD}
       host: !ENV ${DB_HOST}
       port: !ENV ${DB_PORT}
       options: "-c search_path=content"

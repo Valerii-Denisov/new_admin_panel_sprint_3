@@ -6,9 +6,9 @@ from typing import List
 import elasticsearch
 from elasticsearch import Elasticsearch, helpers
 
-from etl.configs import ESSettings, ESHost
-from etl.dataclass import Filmwork
-from etl.utils.backoff import backoff
+from configs import ESSettings, ESHost
+from dataclass import Filmwork
+from utils.backoff import backoff
 from dataclasses import asdict
 
 logger = logging.getLogger('app_logger')

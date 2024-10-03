@@ -1,6 +1,6 @@
 import logging
 
-from etl.dataclass import FilmworkStorage, Filmwork, Person, Genre
+from dataclass import FilmworkStorage, Filmwork, Person, Genre
 from typing import Iterator, List, Tuple
 
 logger = logging.getLogger('app_logger')
@@ -32,11 +32,11 @@ class DataPrepare:
                 movie.get('modified'),
 
             )
-            if movie.get('person_id') is not 'None':
+            if movie.get('person_id') != 'None':
                 person = Person(movie.get('person_id'), movie.get('full_name'))
             else:
                 person = list()
-            if movie.get('genre_id') is not 'None':
+            if movie.get('genre_id') != 'None':
                 genre = Genre(movie.get('genre_id'))
             else:
                 genre = list()

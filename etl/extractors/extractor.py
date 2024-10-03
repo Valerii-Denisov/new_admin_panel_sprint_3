@@ -7,11 +7,11 @@ from psycopg import ClientCursor, connection as pg_connection
 from psycopg.rows import dict_row
 from typing import Iterator, List, Tuple, Union
 
-import etl.extractors.sql as sql
+from extractors import sql
 
-from etl.utils.backoff import backoff
-from etl.utils.etl_state import State
-from etl.configs import DSNSettings, PostgresSettings
+from utils.backoff import backoff
+from utils.etl_state import State
+from configs import DSNSettings, PostgresSettings
 
 logger = logging.getLogger('app_logger')
 

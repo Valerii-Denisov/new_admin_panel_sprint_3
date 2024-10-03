@@ -5,15 +5,15 @@ import os
 from pathlib import Path
 from time import sleep
 
-from etl import logger_config
-from etl.utils.parser import parse_config
+import logger_config
+from utils.parser import parse_config
 from dotenv import load_dotenv
 
-from etl.configs import Config
-from etl.extractors.extractor import PostgresExtractor
-from etl.loaders.loader import ElasticSaver
-from etl.transformers.transformer import DataPrepare
-from etl.utils.etl_state import State, JsonFileStorage
+from configs import Config
+from extractors.extractor import PostgresExtractor
+from loaders.loader import ElasticSaver
+from transformers.transformer import DataPrepare
+from utils.etl_state import State, JsonFileStorage
 
 CONFIG_FILENAME = 'config.yaml'
 logging.config.dictConfig(logger_config.LOGGING_CONFIG)
