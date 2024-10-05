@@ -1,6 +1,5 @@
 import datetime
 import logging
-import os
 
 import psycopg
 from psycopg import ClientCursor, connection as pg_connection
@@ -31,7 +30,7 @@ class PostgresExtractor:
         self.state = state
         self.check_date = (self.state.get_state('last_update')
                            or str(datetime.datetime.min))
-        self.limit = int(os.environ.get('DB_LIMIT'))
+        self.limit = self.connection_params.dict().get('limit')
 
     @backoff(start_sleep_time=1)
     def get_connection(self) -> pg_connection:
@@ -50,12 +49,8 @@ class PostgresExtractor:
             cursor = connection.cursor()
             try:
                 cursor.execute(sql_query, params)
-                while True:
-                    chunk_data = cursor.fetchmany(self.limit)
-                    if not chunk_data:
-                        return
-                    for row in chunk_data:
-                        yield row
+                while chunk_data := cursor.fetchmany(self.limit):
+                    yield from chunk_data
             except psycopg.OperationalError as pg_error:
                 logger.info(f'ex:{pg_error}')
 

@@ -22,7 +22,7 @@ def parse_config(path=None, data=None, tag='!ENV'):
     :rtype: dict[str, T]
     """
     # pattern for global vars: look for ${word}
-    pattern = re.compile('.*?\${(\w+)}.*?')
+    pattern = re.compile('.*?\\${(\\w+)}.*?')
     loader = yaml.SafeLoader
 
     # the tag will be used to mark where to start searching for the pattern

@@ -37,27 +37,28 @@ class Filmwork:
 
     def add_person(self, role: str, person: Person) -> None:
         """Добавляет персоналии в фильм в соответствии с профессией"""
-        if role == 'actor':
-            if not self.actors:
-                self.actors = []
-                self.actors_names = []
-            if person not in self.actors:
-                self.actors.append(person)
-                self.actors_names.append(person.name)
-        if role == 'director':
-            if not self.directors_names:
-                self.directors_names = []
-                self.directors = []
-            if person not in self.directors:
-                self.directors.append(person)
-                self.directors_names.append(person.name)
-        if role == 'writer':
-            if not self.writers:
-                self.writers = []
-                self.writers_names = []
-            if person not in self.writers:
-                self.writers.append(person)
-                self.writers_names.append(person.name)
+        match role:
+            case 'actor':
+                if not self.actors:
+                    self.actors = []
+                    self.actors_names = []
+                if person not in self.actors:
+                    self.actors.append(person)
+                    self.actors_names.append(person.name)
+            case 'director':
+                if not self.directors_names:
+                    self.directors_names = []
+                    self.directors = []
+                if person not in self.directors:
+                    self.directors.append(person)
+                    self.directors_names.append(person.name)
+            case 'writer':
+                if not self.writers:
+                    self.writers = []
+                    self.writers_names = []
+                if person not in self.writers:
+                    self.writers.append(person)
+                    self.writers_names.append(person.name)
 
     def add_genre(self, genre: Genre) -> None:
         """Добавляет жанры"""

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -12,6 +14,7 @@ class DSNSettings(BaseModel):
 
 class PostgresSettings(BaseModel):
     dsn: DSNSettings
+    limit: Optional[int]
 
 
 class ESHost(BaseModel):
